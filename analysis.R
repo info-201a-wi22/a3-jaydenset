@@ -21,14 +21,13 @@ black_data <- incarceration %>%
 
 
 # Creating a new column that puts county name and state together
-# Example (COUNTRY NAME, STATE)
+# Example (COUNTY NAME, STATE)
 incarceration <- incarceration %>%
   mutate("location" = paste(county_name, ", ", state, sep = ""))
 
 
-# According to the most recent date finding the countries
 # What counties has the highest black jail population?
-location_highest_blk_jail_pop <- incarceration %>%
+location_highest_black <- incarceration %>%
   group_by(state) %>%
   filter(year == max(year)) %>%
   filter(black_jail_pop == max(black_jail_pop)) %>%
@@ -36,38 +35,34 @@ location_highest_blk_jail_pop <- incarceration %>%
 #There was a big list of locations rather than one so most likely a few 
 #counties have the same black population. 
 
-# According to the most recent date
-# What county has the highest black population
 
-county_highest_blk_pop <- incarceration %>%
+# What county has the highest black population
+county_highest_black <- incarceration %>%
   filter(year == max(year)) %>%
   filter(black_pop_15to64 == max(black_pop_15to64)) %>%
   pull(location)
 #New York County was the highest black population according to the data 
 
-# What county has the highest ratio of black people jailed compared to all black
-# people in their county?
-highest_ratio_blk_jailed <- incarceration %>%
+
+# Who has the highest ratio of black people jailed compared to black pop
+highest_ratio_black <- incarceration %>%
   filter(year == max(year)) %>%
   mutate(ratio = black_jail_pop / black_pop_15to64) %>%
   filter(ratio == max(ratio, na.rm = TRUE)) %>%
   pull(location)
 
-# In the most recent year, finding the county that had the highest difference 
-#between black people jailed and white people in jailed. 
 
-county_highest_blk_white_diff <- incarceration %>%
+# County with the highest black vs white differential jailed 
+county_highest_black_white_ratio <- incarceration %>%
   filter(year == max(year)) %>%
-  mutate(blk_white_diff = black_jail_pop - white_jail_pop) %>%
-  filter(blk_white_diff == max(blk_white_diff, na.rm = TRUE)) %>%
+  mutate(black_white_ratio = black_jail_pop - white_jail_pop) %>%
+  filter(black_white_ratio == max(black_white_diff, na.rm = TRUE)) %>%
   pull(location)
 
-#Cook County, IL has the highest black to white difference in the jail
+#Cook County, IL has the highest black to white difference in jail
 
 
 # Find the top 5 locations with highest black jail population rate
-# This will list the 5 locations in arranged order with the highest 
-# black jail population rate 
 top_5_locations <- black_data %>%
   filter(year == max(year)) %>%
   top_n(5, wt = black_jail_pop_rate) %>%
@@ -84,17 +79,16 @@ top_5_locations <- black_data %>%
 
 # Trends Over Time Chart --------------------------------------------------
 
-#Filtering the data. The first variable is filtering the average black jail 
-#population by year. While the second variable is filtering by a county and 
-#showing all the jail populations of different ethnic groups by year in New York 
-#county
-jail_pop_data <- incarceration %>%
+#The first variable is filtering the average black jail population by year. 
+#The second variable is filtering by county, and showing all the jail populations 
+#of different ethnic groups by year in Pierce County 
+jail_pop <- incarceration %>%
   select(year, county_name, black_jail_pop) %>%
   group_by(year) %>%
   summarise(mean = mean(black_jail_pop, na.rm = TRUE))
 
-jail_pop_data_2 <- incarceration %>%
-  filter(county_name == "New York County") %>%
+jail_pop_2 <- incarceration %>%
+  filter(county_name == "Pierce County") %>%
   select(
     year, county_name, black_jail_pop, aapi_jail_pop, white_jail_pop,
     other_race_jail_pop, native_jail_pop, latinx_jail_pop
@@ -102,13 +96,10 @@ jail_pop_data_2 <- incarceration %>%
 
 
 
-# Creating a Chart that puts the different ethinic jail populations 
-# together so that It can be translated to the graph showing 
-# different ethnicities as different graph lines. 
-
+# Creating a Chart that puts the different ethinic jail populations together
 jail_long <-
   pivot_longer(
-    data = jail_pop_data_2,
+    data = jail_pop_2,
     cols = c(
       "black_jail_pop", "aapi_jail_pop", "white_jail_pop",
       "other_race_jail_pop", "native_jail_pop", "latinx_jail_pop"
@@ -119,40 +110,31 @@ jail_long <-
 
 
 
-# Creating Graph using gg plot, and customizing the graph to be easily readable by
-# the user
-race_growth_yearly <- ggplot(jail_long) +
+# Creating Graph using gg plot
+race_growth <- ggplot(jail_long) +
   geom_point(aes(x = year, y = value, group = race, color = race)) +
   labs(
-    title = "Jail Population By Race in New York County",
+    title = "Jail Population By Race in Pierce County",
     x = "year",
     y = "jail population"
   )
-
-#In New York County the black population has always been the top population over 
-#over the years provided by the data
-
-
 
 
 # Variable Comparison Chart -----------------------------------------------
 
 
-# Filter data to show only New York County and any data after the year 2000
+# Filter data to show only Pierce County and data after the year 2000
 
-new_york_county_blk_data <- black_data %>%
-  filter(county_name == "New York County") %>%
+pierce_county_black <- black_data %>%
+  filter(county_name == "Pierce County") %>%
   filter(year > "2000")
 
-#The actual creation of the variable comparison chart, showing 
+# Creating the variable comparison chart, showing 
 #black population on x axis and black jail population on y axis. 
-# this graph will allow us to see if there is a correlation between a rise in
-# black Jail population in NY county and the rise in black jail population in 
-#NY Couny
-compare_black_jail_pop <- ggplot(new_york_county_blk_data) +
+compare_black_jail <- ggplot(pierce_county_black) +
   geom_point(aes(x = black_pop_15to64, y = black_jail_pop)) +
   labs(
-    title = "2000-2018 NY County Jail Population Comparison",
+    title = "2000-2018 Pierce County Jail Population Comparison",
     x = "Black Population",
     y = "Black Jail Population"
   )
@@ -164,8 +146,7 @@ compare_black_jail_pop <- ggplot(new_york_county_blk_data) +
 
 # Creating Map ------------------------------------------------------------
 
-# Setting Data Up to filter to most recent year, in order to avoid a weird 
-#looking graph
+# Setting Data Up to filter to most recent year
 black_jail_pop_filter <- black_data %>%
   filter(year == max(year))
 
@@ -183,8 +164,7 @@ map_data <- county_shapes %>%
 
 
 
-
-# Set Up Blank Theme so that there aren't any weird looking lines on graph
+# Set Up Blank Theme 
 blank_theme <- theme_bw() +
   theme(
     axis.line = element_blank(),
@@ -211,18 +191,12 @@ black_jail_pop_rate_map <- ggplot(map_data) +
   blank_theme
 
 
-
-
-#I want to create a more specific looking map in order to 
-# Read the black jail population rate better and be able to tell details
-# The general map was too vague 
-# Create a map focusing on the state of California as it has a long history 
-# of an unjust police system:
-cali_map_data <- county_shapes %>%
+# Create a map focusing on the state of California
+cali_map <- county_shapes %>%
   left_join(black_jail_pop_filter, by = "fips") %>%
   filter(state == "CA", county_name != "Unknown")
 
-black_jail_pop_rate_map_cali <- ggplot(cali_map_data) +
+black_jail_pop_cali <- ggplot(cali_map) +
   geom_polygon(
     mapping = aes(x = long, y = lat, group = group, fill = black_jail_pop_rate),
     color = "gray", size = .3
