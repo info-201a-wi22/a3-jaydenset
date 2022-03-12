@@ -139,9 +139,7 @@ compare_black_jail <- ggplot(pierce_county_black) +
     y = "Black Jail Population"
   )
 
-#The data shocked me as, there were moments on the graph that 
-# The population was steady but the growth of the black jail population 
-#was rapidly growing! 
+#The population was steady but the growth of the black jail population growing
 
 
 # Creating Map ------------------------------------------------------------
@@ -210,5 +208,4 @@ black_jail_pop_cali <- ggplot(cali_map) +
   ggtitle("Black Jail Population Rate in California")
 
 
-#Map found that there is a growing black jail population rate in North 
-#California which shocked me. 
+#Map found that there is a growing black jail population rate in Northern California
