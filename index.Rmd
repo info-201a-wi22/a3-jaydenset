@@ -1,28 +1,49 @@
 ---
-title: "index.Rmd"
+title: "A3 Incarceration Jayden Set"
+author: "Jayden Set"
+date: "3/2/2022"
 output: html_document
 ---
+```{r setup1, include=FALSE}
+library(tidyverse)
+library(dplyr)
+library(lintr)
+library(styler)
+library(maps)
+library(mapproj)
+```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+source("analysis.R")
 ```
+## Intro & Summary
+In the report I will be looking at Vera's data to analyze the incarceration trends csv file. This specific study has focused on the overall jail population in Counties across the US, they most specifically focused on New York but their are many others as well. It is important to understand that many people in jail could be innocent, and along with that, you will notice how diverse these jail's may be.
 
-## R Markdown
+### Exploritory Problems using DPLYR functions 
+What counties have the highest black jail population?
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+`r location_highest_black`
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
-```
 
-## Including Plots
+What county has the highest black population
 
-You can also embed plots, for example:
+`r county_highest_black`
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Who has the highest ratio of black people jailed compared to black pop
+
+`r highest_ratio_black`
+
+
+
+ County with the highest black vs white differential jailed 
+
+`r county_highest_black_white_ratio`
+
+
+
+Find the top 5 locations with highest black jail population rate
+
+`r top_5_locations`
